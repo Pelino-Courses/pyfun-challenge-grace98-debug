@@ -1,51 +1,77 @@
-import math
+from typing import List, Iterator
+from abc import ABC, abstractmethod
 
-class Shape:
-    """Base shape class."""
-    def area(self):
-        raise NotImplementedError
+# Abstract Person class
+class Person(ABC):
+    def __init__(self, name: str):
+        if not name.strip():
+            raise ValueError("Name cannot be empty.")
+        self.name = name
 
-    def __str__(self):
-        return f"{self.__class__.__name__} area: {self.area():.2f}"
+    @abstractmethod
+    def get_role(self) -> str:
+        pass
 
+# Student class
+class Student(Person):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.enrollments: List["Course"] = []
 
-class Circle(Shape):
-    def __init__(self, radius):
-        if radius <= 0:
-            raise ValueError("Radius must be positive.")
-        self.radius = radius
+    def get_role(self):
+        return "Student"
 
-    def area(self):
-        return math.pi * self.radius ** 2
+    def enroll(self, course: "Course"):
+        self.enrollments.append(course)
+        course.students.append(self)
 
+    def __iter__(self) -> Iterator["Course"]:
+        return iter(self.enrollments)
 
-class Rectangle(Shape):
-    def __init__(self, width, height):
-        if width <= 0 or height <= 0:
-            raise ValueError("Width and height must be positive.")
-        self.width = width
-        self.height = height
+# Instructor class
+class Instructor(Person):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.courses: List["Course"] = []
 
-    def area(self):
-        return self.width * self.height
+    def get_role(self):
+        return "Instructor"
 
+# TA with multiple inheritance
+class TeachingAssistant(Student, Instructor):
+    def __init__(self, name: str):
+        Student.__init__(self, name)
+        Instructor.__init__(self, name)
 
-class Triangle(Shape):
-    def __init__(self, base, height):
-        if base <= 0 or height <= 0:
-            raise ValueError("Base and height must be positive.")
-        self.base = base
-        self.height = height
+    def get_role(self):
+        return "Teaching Assistant"
 
-    def area(self):
-        return 0.5 * self.base * self.height
+# Course class
+class Course:
+    def __init__(self, name: str):
+        self.name = name
+        self.students: List[Student] = []
 
+    def __iter__(self) -> Iterator[Student]:
+        return iter(self.students)
+
+    def __add__(self, other: "Course") -> List[Student]:
+        return list(set(self.students + other.students))
+
+    @classmethod
+    def create(cls, name: str) -> "Course":
+        return cls(name)
 
 # Example usage
-c = Circle(3)
-r = Rectangle(4, 5)
-t = Triangle(6, 2)
+s = Student("Grace")
+ta = TeachingAssistant("Pelino")
+c1 = Course.create("Python")
+c2 = Course.create("Coding")
 
-print(c)
-print(r)
-print(t)
+s.enroll(c1)
+ta.enroll(c1)
+ta.enroll(c2)
+
+print(f"{s.name}'s courses:", [c.name for c in s])
+print(f"Students in {c1.name}:", [st.name for st in c1])
+print("Combined:", [st.name for st in c1 + c2])
