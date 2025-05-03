@@ -1,56 +1,33 @@
-def calculate(*args, **kwargs):
-    """
-    Performs calculations on given numbers based on specified operations.
+class Product:
+    """Represents a product with name, price, and quantity."""
 
-    Parameters:
-    - *args: Numbers to operate on.
-    - **kwargs: Operation flags (e.g., add=True, multiply=True).
+    def __init__(self, name, price, quantity):
+        if price < 0 or quantity < 0:
+            raise ValueError("Price and quantity must be non-negative.")
+        self.name = name
+        self.price = price
+        self.quantity = quantity
 
-    Returns:
-    - dict: Results of requested operations.
+    def add_inventory(self, amount):
+        if amount < 0:
+            raise ValueError("Amount must be positive.")
+        self.quantity += amount
 
-    Raises:
-    - TypeError: If non-numeric values are passed as positional arguments.
-    - ValueError: If no operations are provided.
-    """
-    
-    # Validate input types
-    if not all(isinstance(num, (int, float)) for num in args):
-        raise TypeError("All positional arguments must be numbers.")
+    def remove_inventory(self, amount):
+        if amount < 0 or amount > self.quantity:
+            raise ValueError("Invalid amount to remove.")
+        self.quantity -= amount
 
-    if not any(kwargs.values()):
-        raise ValueError("At least one operation must be True.")
+    def total_value(self):
+        return self.price * self.quantity
 
-    results = {}
+    def display_info(self):
+        print(f"{self.name}: ${self.price:.2f}, Qty: {self.quantity}, Total: ${self.total_value():.2f}")
 
-    # Add
-    if kwargs.get('add'):
-        results['add'] = sum(args)
-
-    # Subtract
-    if kwargs.get('subtract'):
-        results['subtract'] = args[0] - sum(args[1:])
-
-    # Multiply
-    if kwargs.get('multiply'):
-        result = 1
-        for num in args:
-            result *= num
-        results['multiply'] = result
-
-    # Divide
-    if kwargs.get('divide'):
-        try:
-            result = args[0]
-            for num in args[1:]:
-                result /= num
-            results['divide'] = result
-        except ZeroDivisionError:
-            results['divide'] = "Error: Division by zero"
-    
-    return results
 
 # Example usage
-if __name__ == "__main__":
-    print(calculate(10, 2, add=True, multiply=True))  # {'add': 12, 'multiply': 20}
-    print(calculate(20, 5, subtract=True, divide=True))  # {'subtract': 15, 'divide': 4.0}
+p = Product("Pen", 1.5, 50)
+p.display_info()
+p.add_inventory(10)
+p.remove_inventory(5)
+p.display_info()
