@@ -1,32 +1,56 @@
-def format_text(text, prefix="", suffix="", capitalize=False, max_length=None):
+def calculate(*args, **kwargs):
     """
-    Formats a string with optional prefix, suffix, capitalization, and max length.
+    Performs calculations on given numbers based on specified operations.
 
     Parameters:
-    - text (str): Required. The main string to format.
-    - prefix (str): Optional. Add before text. Default is "".
-    - suffix (str): Optional. Add after text. Default is "".
-    - capitalize (bool): Optional. Capitalize first letter. Default is False.
-    - max_length (int): Optional. Max length of result. Default is None (no limit).
+    - *args: Numbers to operate on.
+    - **kwargs: Operation flags (e.g., add=True, multiply=True).
 
     Returns:
-    - str: The formatted string.
+    - dict: Results of requested operations.
 
+    Raises:
+    - TypeError: If non-numeric values are passed as positional arguments.
+    - ValueError: If no operations are provided.
     """
-    if not isinstance(text, str):
-        raise TypeError("text must be a string")
-    if max_length is not None and (not isinstance(max_length, int) or max_length < 0):
-        raise ValueError("max_length must be a non-negative integer or None")
+    
+    # Validate input types
+    if not all(isinstance(num, (int, float)) for num in args):
+        raise TypeError("All positional arguments must be numbers.")
 
-    if capitalize:
-        text = text.capitalize()
+    if not any(kwargs.values()):
+        raise ValueError("At least one operation must be True.")
 
-    result = f"{prefix}{text}{suffix}"
+    results = {}
 
-    if max_length is not None:
-        result = result[:max_length]
+    # Add
+    if kwargs.get('add'):
+        results['add'] = sum(args)
 
-    return result
+    # Subtract
+    if kwargs.get('subtract'):
+        results['subtract'] = args[0] - sum(args[1:])
+
+    # Multiply
+    if kwargs.get('multiply'):
+        result = 1
+        for num in args:
+            result *= num
+        results['multiply'] = result
+
+    # Divide
+    if kwargs.get('divide'):
+        try:
+            result = args[0]
+            for num in args[1:]:
+                result /= num
+            results['divide'] = result
+        except ZeroDivisionError:
+            results['divide'] = "Error: Division by zero"
+    
+    return results
 
 # Example usage
-print(format_text("hello", prefix="*", suffix="*", capitalize=True, max_length=10))  # *Hello*
+if __name__ == "__main__":
+    print(calculate(10, 2, add=True, multiply=True))  # {'add': 12, 'multiply': 20}
+    print(calculate(20, 5, subtract=True, divide=True))  # {'subtract': 15, 'divide': 4.0}
