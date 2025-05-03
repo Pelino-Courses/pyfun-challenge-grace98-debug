@@ -1,33 +1,51 @@
-class Product:
-    """Represents a product with name, price, and quantity."""
+import math
 
-    def __init__(self, name, price, quantity):
-        if price < 0 or quantity < 0:
-            raise ValueError("Price and quantity must be non-negative.")
-        self.name = name
-        self.price = price
-        self.quantity = quantity
+class Shape:
+    """Base shape class."""
+    def area(self):
+        raise NotImplementedError
 
-    def add_inventory(self, amount):
-        if amount < 0:
-            raise ValueError("Amount must be positive.")
-        self.quantity += amount
+    def __str__(self):
+        return f"{self.__class__.__name__} area: {self.area():.2f}"
 
-    def remove_inventory(self, amount):
-        if amount < 0 or amount > self.quantity:
-            raise ValueError("Invalid amount to remove.")
-        self.quantity -= amount
 
-    def total_value(self):
-        return self.price * self.quantity
+class Circle(Shape):
+    def __init__(self, radius):
+        if radius <= 0:
+            raise ValueError("Radius must be positive.")
+        self.radius = radius
 
-    def display_info(self):
-        print(f"{self.name}: ${self.price:.2f}, Qty: {self.quantity}, Total: ${self.total_value():.2f}")
+    def area(self):
+        return math.pi * self.radius ** 2
+
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        if width <= 0 or height <= 0:
+            raise ValueError("Width and height must be positive.")
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+
+class Triangle(Shape):
+    def __init__(self, base, height):
+        if base <= 0 or height <= 0:
+            raise ValueError("Base and height must be positive.")
+        self.base = base
+        self.height = height
+
+    def area(self):
+        return 0.5 * self.base * self.height
 
 
 # Example usage
-p = Product("Pen", 1.5, 50)
-p.display_info()
-p.add_inventory(10)
-p.remove_inventory(5)
-p.display_info()
+c = Circle(3)
+r = Rectangle(4, 5)
+t = Triangle(6, 2)
+
+print(c)
+print(r)
+print(t)
