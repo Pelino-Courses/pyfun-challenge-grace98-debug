@@ -1,77 +1,33 @@
-from typing import List, Iterator
-from abc import ABC, abstractmethod
+class Product:
+    """Represents a product with name, price, and quantity."""
 
-# Abstract Person class
-class Person(ABC):
-    def __init__(self, name: str):
-        if not name.strip():
-            raise ValueError("Name cannot be empty.")
+    def __init__(self, name, price, quantity):
+        if price < 0 or quantity < 0:
+            raise ValueError("Price and quantity must be non-negative.")
         self.name = name
+        self.price = price
+        self.quantity = quantity
 
-    @abstractmethod
-    def get_role(self) -> str:
-        pass
+    def add_inventory(self, amount):
+        if amount < 0:
+            raise ValueError("Amount must be positive.")
+        self.quantity += amount
 
-# Student class
-class Student(Person):
-    def __init__(self, name: str):
-        super().__init__(name)
-        self.enrollments: List["Course"] = []
+    def remove_inventory(self, amount):
+        if amount < 0 or amount > self.quantity:
+            raise ValueError("Invalid amount to remove.")
+        self.quantity -= amount
 
-    def get_role(self):
-        return "Student"
+    def total_value(self):
+        return self.price * self.quantity
 
-    def enroll(self, course: "Course"):
-        self.enrollments.append(course)
-        course.students.append(self)
+    def display_info(self):
+        print(f"{self.name}: ${self.price:.2f}, Qty: {self.quantity}, Total: ${self.total_value():.2f}")
 
-    def __iter__(self) -> Iterator["Course"]:
-        return iter(self.enrollments)
-
-# Instructor class
-class Instructor(Person):
-    def __init__(self, name: str):
-        super().__init__(name)
-        self.courses: List["Course"] = []
-
-    def get_role(self):
-        return "Instructor"
-
-# TA with multiple inheritance
-class TeachingAssistant(Student, Instructor):
-    def __init__(self, name: str):
-        Student.__init__(self, name)
-        Instructor.__init__(self, name)
-
-    def get_role(self):
-        return "Teaching Assistant"
-
-# Course class
-class Course:
-    def __init__(self, name: str):
-        self.name = name
-        self.students: List[Student] = []
-
-    def __iter__(self) -> Iterator[Student]:
-        return iter(self.students)
-
-    def __add__(self, other: "Course") -> List[Student]:
-        return list(set(self.students + other.students))
-
-    @classmethod
-    def create(cls, name: str) -> "Course":
-        return cls(name)
 
 # Example usage
-s = Student("Grace")
-ta = TeachingAssistant("Pelino")
-c1 = Course.create("Python")
-c2 = Course.create("Coding")
-
-s.enroll(c1)
-ta.enroll(c1)
-ta.enroll(c2)
-
-print(f"{s.name}'s courses:", [c.name for c in s])
-print(f"Students in {c1.name}:", [st.name for st in c1])
-print("Combined:", [st.name for st in c1 + c2])
+p = Product("Pen", 1.5, 50)
+p.display_info()
+p.add_inventory(10)
+p.remove_inventory(5)
+p.display_info()
